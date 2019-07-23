@@ -49,6 +49,7 @@
                     name: '',
                 },
                 tokens: [''],
+                tokensCopy: [],
                 startTime: new Date(),
                 num: 1,
                 status: 0,
@@ -62,11 +63,15 @@
             onSubmit() {
                 let _this = this;
                 this.status = 1;
+                if (!this.tokens || this.tokens.length === 0) {
+                    return;
+                }
                 this.submitInt = setInterval(() => {
                     const nowDate = new Date().getTime();
                     const startTime = _this.startTime.getTime() - 1000;
                     if (nowDate >= startTime) {
                         clearInterval(_this.submitInt);
+                        this.tokensCopy = JSON.parse(JSON.stringify(this.tokens));
                         this.getCouponInt = setInterval(() => {
                             this.multGetCoupon();
                         }, (1000 / this.num));
@@ -80,20 +85,40 @@
             },
             multGetCoupon() {
                 let _this = this;
-                this.tokens.forEach((token, index) => {
-                    this.$api.GetCouponList({token}).then(res => {
-                        res.data.forEach(item => {
+                if (!this.tokensCopy || this.tokensCopy.length === 0) {
+                    this.onCancel();
+                    return;
+                }
+                const currentId = Math.floor((new Date().getTime() - new Date("2019-07-22").getTime()) / (24 * 60 * 60 * 1000)) + 32;
+                this.tokensCopy.forEach((token, index) => {
+                    this.$api.ReceivingPreferentialOffers({
+                        PreferentialOffersId: currentId,
+                        token: token
+                    }).then(res => {
+                        if (res.code == 0 || res.msg === '已经领取过了') {
+                            _this.tokensCopy.splice(index, 1);
+                            _this.$message.success(res.msg);
+                        } else {
+                            _this.$message.info(res.msg);
+                            return this.$api.GetCouponList({token});
+                        }
+                    }).then(res => {
+                        res && res.data && res.data.forEach(item => {
                             this.$api.ReceivingPreferentialOffers({
                                 PreferentialOffersId: item.id,
-                                token: this.tokens[0]
+                                token: token
                             }).then(res => {
                                 if (res.code == 0) {
-                                    _this.tokens.splice(index, 1);
+                                    _this.tokensCopy.splice(index, 1);
+                                    _this.$message.success(res.msg);
+                                } else {
+                                    _this.$message.info(res.msg);
                                 }
-                                console.log(res);
+
                             })
                         });
                     });
+
                 });
             },
             getCheckCode() {

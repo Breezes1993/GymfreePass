@@ -140,55 +140,16 @@ function $axios(options) {
           if (err && err.response) {
             switch (err.response.status) {
               case 400: {
-                if (response.code === 1001) {
-                  return Promise.resolve(response);
-                }
                 err.message = '请求错误';
                 break;
               }
 
               case 401: {
-                if (options.env === 'classmanage') {
-                  router.push({
-                    path: "/"
-                  });
-                } else if (options.env === 'classroom') {
-                  // 第一次进入该课堂，直接重定向到登录页面
-                  // console.log(storeClassroom);
-                  // let diff = storeClassroom.state.enterTime === 0 ? 0 : Math.floor((new Date().getTime() - storeClassroom.state.enterTime)/1000);
-                  // if (storeClassroom.state.firstEnter && diff < 5) {
-                  //   storeClassroom.state.enterTime = new Date().getTime();
-                  //   routerClassroom.push({
-                  //     name: "login",
-                  //     params: {
-                  //       roomId: routerClassroom.currentRoute.params.roomId
-                  //     }
-                  //   });
-                  //   return Promise.reject();
-                  // } else {
-                  //   storeClassroom.state.firstEnter = false;
-                  // routerClassroom.push({
-                  //   name: "login",
-                  //   params: {
-                  //     roomId: routerClassroom.currentRoute.params.roomId
-                  //   }
-                  // });
-                  // }
-                  routerClassroom.push({
-                    name: 'login',
-                    params: {
-                      roomId: routerClassroom.currentRoute.params.roomId
-                    }
-                  });
-                }
                 err.message = '未授权，请登录';
                 break;
               }
 
               case 403:
-                if (response.code === 1104) {
-                  return Promise.resolve(response);
-                }
                 err.message = '拒绝访问';
                 break;
 
