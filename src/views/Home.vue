@@ -22,11 +22,12 @@
 
             </el-form-item>
             <el-form-item label="开始时间">
-                <el-time-picker
+                <el-date-picker
+                    type="datetime"
                     v-model="startTime"
-                    :picker-options="{selectableRange: '10:30:00 - 13:30:00'}"
                     placeholder="开始抢券时间">
-                </el-time-picker>
+                </el-date-picker>
+                <!--:picker-options="{selectableRange: '10:30:00 - 13:30:00'}"-->
             </el-form-item>
             <el-form-item label="频率">
                 <el-input-number v-model="num" :min="1" :max="5" label="每秒抢券次数"></el-input-number>
